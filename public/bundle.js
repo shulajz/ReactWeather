@@ -38117,14 +38117,6 @@
 
 	var React = __webpack_require__(1);
 
-	// var Examples = React.createClass({
-	//   render: function () {
-	//     return (
-	//       <h3>Examples Component</h3>
-	//     )
-	//   }
-	// });
-
 	var Examples = function Examples(props) {
 	  return React.createElement(
 	    'div',
@@ -38132,7 +38124,7 @@
 	    React.createElement(
 	      'h3',
 	      null,
-	      'Examples Component'
+	      'Examples'
 	    ),
 	    React.createElement(
 	      'p',
