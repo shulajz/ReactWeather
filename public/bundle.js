@@ -36427,7 +36427,7 @@
 	      if (isLoading) {
 	        return React.createElement(
 	          'h3',
-	          null,
+	          { className: 'text-center' },
 	          'Fetching weather...'
 	        );
 	      } else if (temp && location) {
@@ -36438,9 +36438,9 @@
 	      'div',
 	      null,
 	      React.createElement(
-	        'h3',
-	        null,
-	        'Weather Component'
+	        'h1',
+	        { className: 'text-center' },
+	        'Get Weather'
 	      ),
 	      React.createElement(WeatherForm, { onSearch: this.handleSearch }),
 	      renderMessage()
@@ -36482,7 +36482,7 @@
 	        React.createElement('input', { type: 'text', ref: 'location', placeholder: 'Enter city name' }),
 	        React.createElement(
 	          'button',
-	          null,
+	          { className: 'button expanded' },
 	          'Get Weather'
 	        )
 	      )
@@ -36496,7 +36496,7 @@
 /* 95 */
 /***/ (function(module, exports, __webpack_require__) {
 
-	'use strict';
+	"use strict";
 
 	var React = __webpack_require__(8);
 
@@ -36504,13 +36504,13 @@
 	  var location = props.location;
 	  var temp = props.temp;
 	  return React.createElement(
-	    'h3',
-	    null,
-	    'it is ',
+	    "h3",
+	    { className: "text-center" },
+	    "it is ",
 	    temp,
-	    ' degrees inspect in  ',
+	    " degrees inspect in  ",
 	    location,
-	    ' '
+	    " "
 	  );
 	};
 
@@ -38205,7 +38205,7 @@
 /* 123 */
 /***/ (function(module, exports, __webpack_require__) {
 
-	'use strict';
+	"use strict";
 
 	var React = __webpack_require__(8);
 
@@ -38219,9 +38219,37 @@
 
 	var About = function About(props) {
 	  return React.createElement(
-	    'h3',
+	    "div",
 	    null,
-	    'About Component'
+	    React.createElement(
+	      "h1",
+	      { className: "text center" },
+	      "About Component"
+	    ),
+	    React.createElement(
+	      "p",
+	      null,
+	      "This is a weather app ok?"
+	    ),
+	    React.createElement(
+	      "p",
+	      null,
+	      "here are some of the tools"
+	    ),
+	    React.createElement(
+	      "ul",
+	      null,
+	      React.createElement(
+	        "li",
+	        null,
+	        React.createElement(
+	          "a",
+	          { href: "https://facebokk.github.io/react" },
+	          "React"
+	        ),
+	        " - this was the js fw used"
+	      )
+	    )
 	  );
 	};
 

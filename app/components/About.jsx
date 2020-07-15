@@ -10,7 +10,17 @@ var React = require('react');
 
 var About = (props) => {
   return (
-    <h3>About Component</h3>
+    <div>
+    <h1 className="text center">About Component</h1>
+    <p>This is a weather app ok?</p>
+    <p>here are some of the tools</p>
+    <ul>
+      <li>
+        <a href="https://facebokk.github.io/react">React</a> - this was the js fw used
+      </li>
+
+    </ul>
+    </div>
   )
 };
 
