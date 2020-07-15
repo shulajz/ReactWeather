@@ -48,8 +48,6 @@ var Nav = createReactClass({
       </div>
     </div>
 );
-    // </div>
-
   }
 });
 
