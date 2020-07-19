@@ -30700,13 +30700,16 @@
 
 	  // PRIVATE: For client-side rehydration of server match.
 	  matchContext: _propTypes.object
+	};
 
-	  /**
-	   * A <Router> is a high-level API for automatically setting up
-	   * a router that renders a <RouterContext> with all the props
-	   * it needs each time the URL changes.
-	   */
-	};var Router = (0, _createReactClass2.default)({
+	var prefixUnsafeLifecycleMethods = typeof _react2.default.forwardRef !== 'undefined';
+
+	/**
+	 * A <Router> is a high-level API for automatically setting up
+	 * a router that renders a <RouterContext> with all the props
+	 * it needs each time the URL changes.
+	 */
+	var Router = (0, _createReactClass2.default)({
 	  displayName: 'Router',
 
 	  propTypes: propTypes,
@@ -30762,6 +30765,9 @@
 
 	    return (0, _createTransitionManager3.default)(history, (0, _RouteUtils.createRoutes)(routes || children));
 	  },
+
+
+	  // this method will be updated to UNSAFE_componentWillMount below for React versions >= 16.3
 	  componentWillMount: function componentWillMount() {
 	    var _this = this;
 
@@ -30781,6 +30787,7 @@
 	  },
 
 
+	  // this method will be updated to UNSAFE_componentWillReceiveProps below for React versions >= 16.3
 	  /* istanbul ignore next: sanity check */
 	  componentWillReceiveProps: function componentWillReceiveProps(nextProps) {
 	    process.env.NODE_ENV !== 'production' ? (0, _routerWarning2.default)(nextProps.history === this.props.history, 'You cannot change <Router history>; it will be ignored') : void 0;
@@ -30820,6 +30827,13 @@
 	    }));
 	  }
 	});
+
+	if (prefixUnsafeLifecycleMethods) {
+	  Router.prototype.UNSAFE_componentWillReceiveProps = Router.prototype.componentWillReceiveProps;
+	  Router.prototype.UNSAFE_componentWillMount = Router.prototype.componentWillMount;
+	  delete Router.prototype.componentWillReceiveProps;
+	  delete Router.prototype.componentWillMount;
+	}
 
 	exports.default = Router;
 	module.exports = exports['default'];
@@ -33221,7 +33235,7 @@
 	  goForward: _propTypes.func.isRequired
 	});
 
-	var component = exports.component = (0, _propTypes.oneOfType)([_propTypes.func, _propTypes.string]);
+	var component = exports.component = _propTypes.elementType;
 	var components = exports.components = (0, _propTypes.oneOfType)([component, _propTypes.object]);
 	var route = exports.route = (0, _propTypes.oneOfType)([_propTypes.object, _propTypes.element]);
 	var routes = exports.routes = (0, _propTypes.oneOfType)([route, (0, _propTypes.arrayOf)(route)]);
@@ -33245,6 +33259,8 @@
 	var _react = __webpack_require__(8);
 
 	var _react2 = _interopRequireDefault(_react);
+
+	var _reactIs = __webpack_require__(28);
 
 	var _createReactClass = __webpack_require__(36);
 
@@ -33334,7 +33350,9 @@
 	          }
 	        }
 
-	        if ((typeof components === 'undefined' ? 'undefined' : _typeof(components)) === 'object') {
+	        // Handle components is object for { [name]: component } but not valid element
+	        // type of react, such as React.memo, React.lazy and so on.
+	        if ((typeof components === 'undefined' ? 'undefined' : _typeof(components)) === 'object' && !(0, _reactIs.isValidElementType)(components)) {
 	          var elements = {};
 
 	          for (var key in components) {
@@ -33405,6 +33423,10 @@
 	exports.ContextProvider = ContextProvider;
 	exports.ContextSubscriber = ContextSubscriber;
 
+	var _react = __webpack_require__(8);
+
+	var _react2 = _interopRequireDefault(_react);
+
 	var _propTypes = __webpack_require__(27);
 
 	var _propTypes2 = _interopRequireDefault(_propTypes);
@@ -33425,15 +33447,17 @@
 	  return '@@contextSubscriber/' + name;
 	}
 
+	var prefixUnsafeLifecycleMethods = typeof _react2.default.forwardRef !== 'undefined';
+
 	function ContextProvider(name) {
-	  var _childContextTypes, _ref2;
+	  var _childContextTypes, _config;
 
 	  var contextName = makeContextName(name);
 	  var listenersKey = contextName + '/listeners';
 	  var eventIndexKey = contextName + '/eventIndex';
 	  var subscribeKey = contextName + '/subscribe';
 
-	  return _ref2 = {
+	  var config = (_config = {
 	    childContextTypes: (_childContextTypes = {}, _childContextTypes[contextName] = contextProviderShape.isRequired, _childContextTypes),
 
 	    getChildContext: function getChildContext() {
@@ -33444,10 +33468,16 @@
 	        subscribe: this[subscribeKey]
 	      }, _ref;
 	    },
+
+
+	    // this method will be updated to UNSAFE_componentWillMount below for React versions >= 16.3
 	    componentWillMount: function componentWillMount() {
 	      this[listenersKey] = [];
 	      this[eventIndexKey] = 0;
 	    },
+
+
+	    // this method will be updated to UNSAFE_componentWillReceiveProps below for React versions >= 16.3
 	    componentWillReceiveProps: function componentWillReceiveProps() {
 	      this[eventIndexKey]++;
 	    },
@@ -33458,7 +33488,7 @@
 	        return listener(_this[eventIndexKey]);
 	      });
 	    }
-	  }, _ref2[subscribeKey] = function (listener) {
+	  }, _config[subscribeKey] = function (listener) {
 	    var _this2 = this;
 
 	    // No need to immediately call listener here.
@@ -33469,28 +33499,36 @@
 	        return item !== listener;
 	      });
 	    };
-	  }, _ref2;
+	  }, _config);
+
+	  if (prefixUnsafeLifecycleMethods) {
+	    config.UNSAFE_componentWillMount = config.componentWillMount;
+	    config.UNSAFE_componentWillReceiveProps = config.componentWillReceiveProps;
+	    delete config.componentWillMount;
+	    delete config.componentWillReceiveProps;
+	  }
+	  return config;
 	}
 
 	function ContextSubscriber(name) {
-	  var _contextTypes, _ref4;
+	  var _contextTypes, _config2;
 
 	  var contextName = makeContextName(name);
 	  var lastRenderedEventIndexKey = contextName + '/lastRenderedEventIndex';
 	  var handleContextUpdateKey = contextName + '/handleContextUpdate';
 	  var unsubscribeKey = contextName + '/unsubscribe';
 
-	  return _ref4 = {
+	  var config = (_config2 = {
 	    contextTypes: (_contextTypes = {}, _contextTypes[contextName] = contextProviderShape, _contextTypes),
 
 	    getInitialState: function getInitialState() {
-	      var _ref3;
+	      var _ref2;
 
 	      if (!this.context[contextName]) {
 	        return {};
 	      }
 
-	      return _ref3 = {}, _ref3[lastRenderedEventIndexKey] = this.context[contextName].eventIndex, _ref3;
+	      return _ref2 = {}, _ref2[lastRenderedEventIndexKey] = this.context[contextName].eventIndex, _ref2;
 	    },
 	    componentDidMount: function componentDidMount() {
 	      if (!this.context[contextName]) {
@@ -33499,6 +33537,9 @@
 
 	      this[unsubscribeKey] = this.context[contextName].subscribe(this[handleContextUpdateKey]);
 	    },
+
+
+	    // this method will be updated to UNSAFE_componentWillReceiveProps below for React versions >= 16.3
 	    componentWillReceiveProps: function componentWillReceiveProps() {
 	      var _setState;
 
@@ -33516,13 +33557,19 @@
 	      this[unsubscribeKey]();
 	      this[unsubscribeKey] = null;
 	    }
-	  }, _ref4[handleContextUpdateKey] = function (eventIndex) {
+	  }, _config2[handleContextUpdateKey] = function (eventIndex) {
 	    if (eventIndex !== this.state[lastRenderedEventIndexKey]) {
 	      var _setState2;
 
 	      this.setState((_setState2 = {}, _setState2[lastRenderedEventIndexKey] = eventIndex, _setState2));
 	    }
-	  }, _ref4;
+	  }, _config2);
+
+	  if (prefixUnsafeLifecycleMethods) {
+	    config.UNSAFE_componentWillReceiveProps = config.componentWillReceiveProps;
+	    delete config.componentWillReceiveProps;
+	  }
+	  return config;
 	}
 
 /***/ }),
@@ -33637,7 +33684,8 @@
 	    activeClassName: _propTypes.string,
 	    onlyActiveOnIndex: _propTypes.bool.isRequired,
 	    onClick: _propTypes.func,
-	    target: _propTypes.string
+	    target: _propTypes.string,
+	    innerRef: (0, _propTypes.oneOfType)([_propTypes.string, _propTypes.func, (0, _propTypes.shape)({ current: _propTypes.elementType })])
 	  },
 
 	  getDefaultProps: function getDefaultProps() {
@@ -33671,7 +33719,8 @@
 	        activeClassName = _props.activeClassName,
 	        activeStyle = _props.activeStyle,
 	        onlyActiveOnIndex = _props.onlyActiveOnIndex,
-	        props = _objectWithoutProperties(_props, ['to', 'activeClassName', 'activeStyle', 'onlyActiveOnIndex']);
+	        innerRef = _props.innerRef,
+	        props = _objectWithoutProperties(_props, ['to', 'activeClassName', 'activeStyle', 'onlyActiveOnIndex', 'innerRef']);
 
 	    // Ignore if rendered outside the context of router to simplify unit testing.
 
@@ -33682,7 +33731,7 @@
 	    if (router) {
 	      // If user does not specify a `to` prop, return an empty anchor tag.
 	      if (!to) {
-	        return _react2.default.createElement('a', props);
+	        return _react2.default.createElement('a', _extends({}, props, { ref: innerRef }));
 	      }
 
 	      var toLocation = resolveToLocation(to, router);
@@ -33703,7 +33752,7 @@
 	      }
 	    }
 
-	    return _react2.default.createElement('a', _extends({}, props, { onClick: this.handleClick }));
+	    return _react2.default.createElement('a', _extends({}, props, { onClick: this.handleClick, ref: innerRef }));
 	  }
 	});
 
@@ -33837,58 +33886,111 @@
 
 /***/ }),
 /* 60 */
-/***/ (function(module, exports) {
+/***/ (function(module, exports, __webpack_require__) {
+
+	'use strict';
+
+	var reactIs = __webpack_require__(28);
 
 	/**
 	 * Copyright 2015, Yahoo! Inc.
 	 * Copyrights licensed under the New BSD License. See the accompanying LICENSE file for terms.
 	 */
-	'use strict';
-
 	var REACT_STATICS = {
-	    childContextTypes: true,
-	    contextTypes: true,
-	    defaultProps: true,
-	    displayName: true,
-	    getDefaultProps: true,
-	    mixins: true,
-	    propTypes: true,
-	    type: true
+	  childContextTypes: true,
+	  contextType: true,
+	  contextTypes: true,
+	  defaultProps: true,
+	  displayName: true,
+	  getDefaultProps: true,
+	  getDerivedStateFromError: true,
+	  getDerivedStateFromProps: true,
+	  mixins: true,
+	  propTypes: true,
+	  type: true
 	};
-
 	var KNOWN_STATICS = {
-	    name: true,
-	    length: true,
-	    prototype: true,
-	    caller: true,
-	    arguments: true,
-	    arity: true
+	  name: true,
+	  length: true,
+	  prototype: true,
+	  caller: true,
+	  callee: true,
+	  arguments: true,
+	  arity: true
 	};
+	var FORWARD_REF_STATICS = {
+	  '$$typeof': true,
+	  render: true,
+	  defaultProps: true,
+	  displayName: true,
+	  propTypes: true
+	};
+	var MEMO_STATICS = {
+	  '$$typeof': true,
+	  compare: true,
+	  defaultProps: true,
+	  displayName: true,
+	  propTypes: true,
+	  type: true
+	};
+	var TYPE_STATICS = {};
+	TYPE_STATICS[reactIs.ForwardRef] = FORWARD_REF_STATICS;
+	TYPE_STATICS[reactIs.Memo] = MEMO_STATICS;
 
-	var isGetOwnPropertySymbolsAvailable = typeof Object.getOwnPropertySymbols === 'function';
+	function getStatics(component) {
+	  // React v16.11 and below
+	  if (reactIs.isMemo(component)) {
+	    return MEMO_STATICS;
+	  } // React v16.12 and above
 
-	module.exports = function hoistNonReactStatics(targetComponent, sourceComponent, customStatics) {
-	    if (typeof sourceComponent !== 'string') { // don't hoist over string (html) components
-	        var keys = Object.getOwnPropertyNames(sourceComponent);
 
-	        /* istanbul ignore else */
-	        if (isGetOwnPropertySymbolsAvailable) {
-	            keys = keys.concat(Object.getOwnPropertySymbols(sourceComponent));
-	        }
+	  return TYPE_STATICS[component['$$typeof']] || REACT_STATICS;
+	}
 
-	        for (var i = 0; i < keys.length; ++i) {
-	            if (!REACT_STATICS[keys[i]] && !KNOWN_STATICS[keys[i]] && (!customStatics || !customStatics[keys[i]])) {
-	                try {
-	                    targetComponent[keys[i]] = sourceComponent[keys[i]];
-	                } catch (error) {
+	var defineProperty = Object.defineProperty;
+	var getOwnPropertyNames = Object.getOwnPropertyNames;
+	var getOwnPropertySymbols = Object.getOwnPropertySymbols;
+	var getOwnPropertyDescriptor = Object.getOwnPropertyDescriptor;
+	var getPrototypeOf = Object.getPrototypeOf;
+	var objectPrototype = Object.prototype;
+	function hoistNonReactStatics(targetComponent, sourceComponent, blacklist) {
+	  if (typeof sourceComponent !== 'string') {
+	    // don't hoist over string (html) components
+	    if (objectPrototype) {
+	      var inheritedComponent = getPrototypeOf(sourceComponent);
 
-	                }
-	            }
-	        }
+	      if (inheritedComponent && inheritedComponent !== objectPrototype) {
+	        hoistNonReactStatics(targetComponent, inheritedComponent, blacklist);
+	      }
 	    }
 
-	    return targetComponent;
-	};
+	    var keys = getOwnPropertyNames(sourceComponent);
+
+	    if (getOwnPropertySymbols) {
+	      keys = keys.concat(getOwnPropertySymbols(sourceComponent));
+	    }
+
+	    var targetStatics = getStatics(targetComponent);
+	    var sourceStatics = getStatics(sourceComponent);
+
+	    for (var i = 0; i < keys.length; ++i) {
+	      var key = keys[i];
+
+	      if (!KNOWN_STATICS[key] && !(blacklist && blacklist[key]) && !(sourceStatics && sourceStatics[key]) && !(targetStatics && targetStatics[key])) {
+	        var descriptor = getOwnPropertyDescriptor(sourceComponent, key);
+
+	        try {
+	          // Avoid failures from read-only properties
+	          defineProperty(targetComponent, key, descriptor);
+	        } catch (e) {}
+	      }
+	    }
+	  }
+
+	  return targetComponent;
+	}
+
+	module.exports = hoistNonReactStatics;
 
 
 /***/ }),
@@ -38306,7 +38408,7 @@
 	    null,
 	    React.createElement(
 	      "h1",
-	      { className: "text center" },
+	      { className: "text center page-title" },
 	      "About Component"
 	    ),
 	    React.createElement(
@@ -38355,7 +38457,7 @@
 	    null,
 	    React.createElement(
 	      'h1',
-	      { className: 'text center' },
+	      { className: 'text center page-title' },
 	      'Examples'
 	    ),
 	    React.createElement(
@@ -38756,8 +38858,8 @@
 	if(false) {
 		// When the styles change, update the <style> tags
 		if(!content.locals) {
-			module.hot.accept("!!../../node_modules/css-loader/index.js!./app.css", function() {
-				var newContent = require("!!../../node_modules/css-loader/index.js!./app.css");
+			module.hot.accept("!!../../node_modules/css-loader/index.js!../../node_modules/sass-loader/lib/loader.js!./app.scss", function() {
+				var newContent = require("!!../../node_modules/css-loader/index.js!../../node_modules/sass-loader/lib/loader.js!./app.scss");
 				if(typeof newContent === 'string') newContent = [[module.id, newContent, '']];
 				update(newContent);
 			});
@@ -38775,7 +38877,7 @@
 
 
 	// module
-	exports.push([module.id, ".page-title {\r\n  margin-top: 2.5rem;\r\n  margin-bottom: 2.5rem;\r\n}\r\n\r\ninput[type=search] {\r\n  box-shadow: none;\r\n}\r\n", ""]);
+	exports.push([module.id, ".page-title {\n  color: purple;\n  margin-top: space-large;\n  margin-bottom: space-large; }\n\ninput[type=search] {\n  box-shadow: none; }\n", ""]);
 
 	// exports
 
